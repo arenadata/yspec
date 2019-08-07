@@ -1,0 +1,9 @@
+---
+- type: type1
+  payload:
+    - 1
+    - 1
+- type: type2
+  payload:
+    - "that is a string"
+    - "that is a string2"

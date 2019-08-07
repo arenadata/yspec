@@ -1,0 +1,44 @@
+---
+root:
+  match: list
+  item: list_item
+
+list_item:
+  match: dict_key_selection
+  selector: type
+  variants:
+    type1: dict_with_int
+    type2: dict_with_string
+
+dict_with_int:
+  match: dict
+  items:
+    type: string
+    payload: list_of_int
+  required_items:
+    - type
+    - payload
+
+dict_with_string:
+  match: dict
+  items:
+    type: string
+    payload: list_of_string
+  required_items:
+    - type
+    - payload
+  
+
+list_of_int:
+  match: list
+  item: int
+  
+int:
+  match: int
+  
+list_of_string:
+  match: list
+  item: string
+  
+string:
+  match: string

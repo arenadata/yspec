@@ -1,0 +1,8 @@
+---
+key1: true
+key2: "That is a string"
+key3: 1
+key4: 1.0
+key5:
+  - "One more string"
+  - "Another string"

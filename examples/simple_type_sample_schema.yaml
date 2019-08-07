@@ -1,0 +1,25 @@
+---
+boolean:
+  match: bool
+
+string:
+  match: string
+
+integer:
+  match: int
+
+float:
+  match: float
+
+list:
+  match: list
+  item: string
+
+root:
+  match: dict
+  items:
+    key1: boolean
+    key2: string
+    key3: integer
+    key4: float
+    key5: list
