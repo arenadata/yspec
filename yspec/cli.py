@@ -51,7 +51,7 @@ def load_file(filename: str):
     raise Exception(f"Unknown extension of file {filename}")
 
 
-def run(argv):
+def run():
     args = parse_argv()
     rules = load_file(args.schemafile[0])
 
