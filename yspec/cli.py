@@ -16,6 +16,7 @@
 # under the License.
 
 import argparse
+import json
 import sys
 import yaml
 
@@ -40,9 +41,14 @@ def parse_argv():
     return parser.parse_args()
 
 
-def load_file(filename):
-    with open(filename, 'r') as stream:
-        return yaml.safe_load(stream)
+def load_file(filename: str):
+    if filename.endswith('.yaml') or filename.endswith('.yml'):
+        with open(filename, 'r') as stream:
+            return yaml.safe_load(stream)
+    elif filename.endswith('.json'):
+        with open(filename) as json_file:
+            return json.load(json_file)
+    raise Exception(f"Unknown extension of file {filename}")
 
 
 def run(argv):
