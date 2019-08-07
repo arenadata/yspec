@@ -17,13 +17,18 @@
 
 
 class FormatError(Exception):
-    def __init__(self, path, message, data=None):
+    def __init__(self, path, message, data=None, caused_by=None):
         self.path = fp(path)
         self.message = message
         self.data = data
+        self.errors = caused_by
 
     def __str__(self):
-        return f"at {self.path}: {self.message}"
+        message = f"at {self.path}: {self.message}" 
+        if self.errors is not None:
+            for e in self.errors:
+                message = message + "\n" + str(e)
+        return message
 
 
 class SchemaError(Exception):
@@ -76,16 +81,14 @@ def match_dict_key_selection(data, rules, rule, path):
 
 
 def match_one_of(data, rules, rule, path):
-    errors = {}
+    errors = []
     for obj in rule['variants']:
         try:
             process_rule(data, rules, obj, path)
         except FormatError as e:
-            errors[obj] = e
+            errors.append(e)
     if len(errors) == len(rule['variants']):
-        for k, e in errors.items():
-            print(e)
-        raise FormatError(path, "None of the variants match", data)
+        raise FormatError(path, "None of the variants match", data, errors)
 
 
 def match_simple_type(obj_type):
@@ -106,8 +109,7 @@ MATCH = {
 }
 
 
-def process_rule(data, rules, name, path=[]):
-    print("Process {} according to rule {}".format(fp(path), name))
+def process_rule(data, rules, name, path=['.']):
     if name not in rules:
         raise SchemaError(f"There is no rule {name} in schema.")
     rule = rules[name]

@@ -1,10 +1,23 @@
 # yspec
 
-yspec is a deadly simple checker for structures. It is especially usefull for validation of different yaml/json/toml files
+yspec is a deadly simple checker for structures. It is especially usefull for validation of different yaml/json files
 
 ## Usage from cli
 
+```sh
 yspec ./schema.yaml /tmp/data.json
+```
+
+NOTE: yspec able to take json/yaml/toml for schema and for data
+
+## Usage from code
+
+```python
+from yspec.checker import process_rule
+
+# Some code that prepares data and rules
+process_rule(data, rules, 'root')
+```
 
 ## Schema Format
 

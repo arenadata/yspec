@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import argparse
 import sys
 import yaml
 
@@ -22,23 +23,44 @@ from pprint import pprint
 from .checker import process_rule, FormatError
 
 
+def parse_argv():
+    parser = argparse.ArgumentParser(
+        description="Validate structured data according to schema"
+    )
+    parser.add_argument(
+        'schemafile',
+        help="File with schema description",
+        nargs=1
+    )
+    parser.add_argument(
+        'datafile',
+        help="File with data to be checked by schema",
+        nargs='*'
+    )
+    return parser.parse_args()
+
+
+def load_file(filename):
+    with open(filename, 'r') as stream:
+        return yaml.safe_load(stream)
+
 
 def run(argv):
-    with open("./schema.yaml", 'r') as stream:
-        rules = yaml.safe_load(stream)
+    args = parse_argv()
+    rules = load_file(args.schemafile[0])
 
-    with open(argv[1], 'r') as stream:
-        data = yaml.safe_load(stream)
-
-    try:
-        process_rule(data, rules, 'root', ['.'])
-    except FormatError as e:
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Got an error {}".format(str(e)))
-        if e.data is not None:
-            print("At block")
-            print("--------")
-            pprint(e.data, depth=1)
-        print("--------------------------------------------------")
-        print("")
-        sys.exit(1)
+    for df in args.datafile:
+        data = load_file(df)
+        try:
+            process_rule(data, rules, 'root')
+        except FormatError as e:
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(f"File:  {df}")
+            print("Error: {}".format(str(e)))
+            if e.data is not None:
+                print("At block")
+                print("--------")
+                pprint(e.data, depth=1)
+            print("--------------------------------------------------")
+            print("")
+            sys.exit(1)
