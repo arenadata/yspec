@@ -38,7 +38,7 @@ will be valid for schema (in YAML):
 ```yaml
 ---
 root:
-  match: dict
+  match: list
   item: string
   
 string:
