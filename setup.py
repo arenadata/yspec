@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="yspec",
-    version="0.0.1",
+    version="0.0.2",
     author="Anton Chevychalov",
     author_email="cab@arenadata.io",
     description="YAML structure validator",

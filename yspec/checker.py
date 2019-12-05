@@ -24,7 +24,7 @@ class FormatError(Exception):
         self.errors = caused_by
 
     def __str__(self):
-        message = f"at {self.path}: {self.message}" 
+        message = f"at {self.path}: {self.message}"
         if self.errors is not None:
             for e in self.errors:
                 message = message + "\n" + str(e)
@@ -107,6 +107,16 @@ MATCH = {
     'int': match_simple_type(int),
     'float': match_simple_type(float),
 }
+
+
+def check_rule(rules):
+    if not isinstance(rules, dict):
+        return (False, 'YSpec shold be a dict')
+    if 'root' not in rules:
+        return (False, 'YSpec shold has "root" key')
+    if 'match' not in rules['root']:
+        return (False, 'YSpec shold has "match" subkey of "root" key')
+    return (True, '')
 
 
 def process_rule(data, rules, name, path=['.']):
