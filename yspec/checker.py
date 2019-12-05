@@ -111,11 +111,11 @@ MATCH = {
 
 def check_rule(rules):
     if not isinstance(rules, dict):
-        return (False, 'YSpec shold be a dict')
+        return (False, 'YSpec should be a dict')
     if 'root' not in rules:
-        return (False, 'YSpec shold has "root" key')
+        return (False, 'YSpec should has "root" key')
     if 'match' not in rules['root']:
-        return (False, 'YSpec shold has "match" subkey of "root" key')
+        return (False, 'YSpec should has "match" subkey of "root" key')
     return (True, '')
 
 
