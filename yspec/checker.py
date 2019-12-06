@@ -22,6 +22,7 @@ class FormatError(Exception):
         self.message = message
         self.data = data
         self.errors = caused_by
+        super().__init__(message)
 
     def __str__(self):
         message = f"at {self.path}: {self.message}"
@@ -119,7 +120,9 @@ def check_rule(rules):
     return (True, '')
 
 
-def process_rule(data, rules, name, path=['.']):
+def process_rule(data, rules, name, path=None):
+    if path is None:
+        path = ['.']
     if name not in rules:
         raise SchemaError(f"There is no rule {name} in schema.")
     rule = rules[name]
