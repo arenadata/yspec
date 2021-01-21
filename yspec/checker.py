@@ -57,13 +57,8 @@ def fp(path):
 def check_type(data, data_type, path, rule=None, parent=None):
     if not isinstance(data, data_type):
         last = path[-1]
-        raise FormatError(
-            path,
-            '{} "{}" should be a {}'.format(last[0], last[1], str(data_type)),
-            data,
-            rule=rule,
-            parent=parent
-        )
+        msg = '{} "{}" should be a {}'.format(last[0], last[1], str(data_type))
+        raise FormatError(path, data, rule=rule, parent=parent)
 
 
 def match_list(data, rules, rule, path, parent=None):
@@ -104,13 +99,8 @@ def match_dict_key_selection(data, rules, rule, path, parent=None):
     elif 'default_variant' in rule:
         process_rule(data, rules, rule['default_variant'], path, parent=parent)
     else:
-        raise FormatError(
-            path,
-            f'Value "{value}" is not allowed for map key "{key}".',
-            data,
-            rule=rule,
-            parent=parent
-        )
+        msg = f'Value "{value}" is not allowed for map key "{key}".'
+        raise FormatError(path, msg, data, rule=rule, parent=parent)
 
 
 def match_one_of(data, rules, rule, path, parent=None):
@@ -121,7 +111,13 @@ def match_one_of(data, rules, rule, path, parent=None):
         except FormatError as e:
             errors.append(e)
     if len(errors) == len(rule['variants']):
-        raise FormatError(path, "None of the variants match", data, errors)
+        raise FormatError(path, "None of the variants match", data, errors, rule)
+
+
+def match_set(data, rules, rule, path, parent=None):
+    if data not in rule['variants']:
+        msg = f'Value "{data}" not in set {rule["variants"]}'
+        raise FormatError(path, msg, data, rule=rule, parent=parent)
 
 
 def match_simple_type(obj_type):
@@ -135,6 +131,7 @@ MATCH = {
     'dict': match_dict,
     'one_of': match_one_of,
     'dict_key_selection': match_dict_key_selection,
+    'set': match_set,
     'string': match_simple_type(str),
     'bool': match_simple_type(bool),
     'int': match_simple_type(int),
@@ -164,7 +161,7 @@ def process_rule(data, rules, name, path=None, parent=None):
     if match not in MATCH:
         raise SchemaError(f"Unknown match {match} from schema. Donno how to handle that.")
 
-    # print(f'process_rule: {MATCH[match]}.__name__ "{name}" path: {path}, data: {data}')
+    # print(f'process_rule: {MATCH[match].__name__} "{name}" path: {path}, data: {type(data)} {data}')
     MATCH[match](data, rules, rule, path=path, parent=parent)
 
 
