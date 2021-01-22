@@ -58,7 +58,7 @@ def check_type(data, data_type, path, rule=None, parent=None):
     if not isinstance(data, data_type):
         last = path[-1]
         msg = '{} "{}" should be a {}'.format(last[0], last[1], str(data_type))
-        raise FormatError(path, data, rule=rule, parent=parent)
+        raise FormatError(path, msg, data, rule=rule, parent=parent)
 
 
 def match_list(data, rules, rule, path, parent=None):
@@ -111,7 +111,8 @@ def match_one_of(data, rules, rule, path, parent=None):
         except FormatError as e:
             errors.append(e)
     if len(errors) == len(rule['variants']):
-        raise FormatError(path, "None of the variants match", data, errors, rule)
+        raise errors[-1]
+        #raise FormatError(path, "None of the variants match", data, errors, rule)
 
 
 def match_set(data, rules, rule, path, parent=None):
@@ -161,7 +162,7 @@ def process_rule(data, rules, name, path=None, parent=None):
     if match not in MATCH:
         raise SchemaError(f"Unknown match {match} from schema. Donno how to handle that.")
 
-    # print(f'process_rule: {MATCH[match].__name__} "{name}" path: {path}, data: {type(data)} {data}')
+    # print(f'process_rule: {MATCH[match].__name__} "{name}" path: {path}, data: {data}')
     MATCH[match](data, rules, rule, path=path, parent=parent)
 
 
