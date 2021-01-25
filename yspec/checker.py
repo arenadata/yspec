@@ -73,6 +73,10 @@ def match_none(data, rules, rule, path, parent=None):
         raise FormatError(path, msg, data, rule=rule, parent=parent)
 
 
+def match_any(data, rules, rule, path, parent=None):
+    pass
+
+
 def match_list(data, rules, rule, path, parent=None):
     check_type(data, list, path, rule, parent=parent)
     for i, v in enumerate(data):
@@ -150,6 +154,7 @@ MATCH = {
     'int': match_simple_type(int),
     'float': match_simple_type(float),
     'none': match_none,
+    'any': match_any,
 }
 
 
