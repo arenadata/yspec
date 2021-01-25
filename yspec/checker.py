@@ -43,7 +43,12 @@ class FormatError(Exception):
 
 
 class SchemaError(Exception):
-    pass
+    def __init__(self, message, rule=None):
+        self.rule = rule
+        self.line = None
+        if isinstance(rule, ruyaml.comments.CommentedBase):
+            self.line = rule.lc.line
+        super().__init__(message)
 
 
 class DataError(Exception):
@@ -61,6 +66,13 @@ def check_type(data, data_type, path, rule=None, parent=None):
         raise FormatError(path, msg, data, rule=rule, parent=parent)
 
 
+def match_none(data, rules, rule, path, parent=None):
+    if data is not None:
+        last = path[-1]
+        msg = '{} "{}" should be a None'.format(last[0], last[1])
+        raise FormatError(path, msg, data, rule=rule, parent=parent)
+
+
 def match_list(data, rules, rule, path, parent=None):
     check_type(data, list, path, rule, parent=parent)
     for i, v in enumerate(data):
@@ -71,7 +83,7 @@ def match_list(data, rules, rule, path, parent=None):
 
 
 def match_dict(data, rules, rule, path, parent=None):
-    check_type(data, dict, path, rule)
+    check_type(data, dict, path, rule=rule, parent=parent)
     if 'required_items' in rule:
         for i in rule['required_items']:
             if i not in data:
@@ -137,6 +149,7 @@ MATCH = {
     'bool': match_simple_type(bool),
     'int': match_simple_type(int),
     'float': match_simple_type(float),
+    'none': match_none,
 }
 
 
@@ -162,7 +175,7 @@ def process_rule(data, rules, name, path=None, parent=None):
     if match not in MATCH:
         raise SchemaError(f"Unknown match {match} from schema. Donno how to handle that.")
 
-    # print(f'process_rule: {MATCH[match].__name__} "{name}" path: {path}, data: {data}')
+    #print(f'process_rule: {MATCH[match].__name__} "{name}" path: {path}, data: {data}')
     MATCH[match](data, rules, rule, path=path, parent=parent)
 
 
