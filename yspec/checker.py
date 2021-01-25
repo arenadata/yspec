@@ -61,8 +61,11 @@ def fp(path):
 
 def check_type(data, data_type, path, rule=None, parent=None):
     if not isinstance(data, data_type):
-        last = path[-1]
-        msg = '{} "{}" should be a {}'.format(last[0], last[1], str(data_type))
+        if path:
+            last = path[-1]
+            msg = '{} "{}" should be a {}'.format(last[0], last[1], str(data_type))
+        else:
+            msg = 'Object should be a {}'.format(str(data_type))
         raise FormatError(path, msg, data, rule=rule, parent=parent)
 
 
