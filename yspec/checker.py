@@ -30,13 +30,14 @@ class FormatError(Exception):
         self.line = None
         if isinstance(data, ruyaml.comments.CommentedBase):
             self.line = data.lc.line
-        elif parent:
+        elif parent and isinstance(parent, ruyaml.comments.CommentedBase):
             self.line = parent.lc.line
         super().__init__(message)
 
 
 class SchemaError(Exception):
     pass
+
 
 class DataError(Exception):
     pass
@@ -82,7 +83,7 @@ def match_dict(data, rules, rule, path, parent=None):
     if 'required_items' in rules[rule]:
         for i in rules[rule]['required_items']:
             if i not in data:
-                raise FormatError(path, f'There is no required key "{i}" in map', data, rule)
+                raise FormatError(path, f'There is no required key "{i}" in map.', data, rule)
     for k in data:
         new_path = path + [('Value of map key', k)]
         if 'items' in rules[rule] and k in rules[rule]['items']:
@@ -98,7 +99,7 @@ def match_dict_key_selection(data, rules, rule, path, parent=None):
     check_match_type('dict_key_selection', data, dict, path, rule, parent)
     key = rules[rule]['selector']
     if key not in data:
-        msg = f'There is no key "{key}" in that map.'
+        msg = f'There is no key "{key}" in map.'
         raise FormatError(path, msg, data, rule, parent)
     value = data[key]
     if value in rules[rule]['variants']:
@@ -175,7 +176,7 @@ def process_rule(data, rules, name, path=None, parent=None):
     if match not in MATCH:
         raise SchemaError(f"Unknown match {match} from schema. Donno how to handle that.")
 
-    #print(f'process_rule: {MATCH[match].__name__} "{name}" data: {data}')
+    # print(f'process_rule: {MATCH[match].__name__} "{name}" data: {data}')
     MATCH[match](data, rules, name, path=path, parent=parent)
 
 
