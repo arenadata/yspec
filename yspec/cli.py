@@ -17,6 +17,7 @@
 
 import argparse
 import sys
+import pathlib
 import ruyaml
 
 from .checker import check, FormatError
@@ -40,13 +41,15 @@ def parse_argv():
 
 
 def load_file(filename: str, version="1.2"):
-    if filename.endswith('.yaml') or filename.endswith('.yml'):
-        with open(filename, 'r') as stream:
+    if pathlib.Path(filename).suffix not in ('.yml', '.yaml', '.json'):
+        print(f'Unknown extension of file "{filename}"')
+        sys.exit(1)
+    with open(filename, 'r') as stream:
+        try:
             return ruyaml.round_trip_load(stream, version=version)
-    elif filename.endswith('.json'):
-        with open(filename) as json_file:
-            return ruyaml.round_trip_load(json_file, version=version)
-    raise Exception(f"Unknown extension of file {filename}")
+        except ruyaml.parser.ParserError as e:
+            print(e)
+            sys.exit(1)
 
 
 def run():
