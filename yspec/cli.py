@@ -16,12 +16,11 @@
 # under the License.
 
 import argparse
-import json
 import sys
-import yaml
+import pathlib
+import ruyaml
 
-from pprint import pprint
-from .checker import process_rule, FormatError
+from .checker import check, FormatError
 
 
 def parse_argv():
@@ -41,32 +40,35 @@ def parse_argv():
     return parser.parse_args()
 
 
-def load_file(filename: str):
-    if filename.endswith('.yaml') or filename.endswith('.yml'):
-        with open(filename, 'r') as stream:
-            return yaml.safe_load(stream)
-    elif filename.endswith('.json'):
-        with open(filename) as json_file:
-            return json.load(json_file)
-    raise Exception(f"Unknown extension of file {filename}")
+def load_file(filename: str, version="1.2"):
+    if pathlib.Path(filename).suffix not in ('.yml', '.yaml', '.json'):
+        print(f'Unknown extension of file "{filename}"')
+        sys.exit(1)
+    with open(filename, 'r') as stream:
+        try:
+            return ruyaml.round_trip_load(stream, version=version)
+        except ruyaml.parser.ParserError as e:
+            print(e)
+            sys.exit(1)
 
 
 def run():
     args = parse_argv()
-    rules = load_file(args.schemafile[0])
+    schemafile = args.schemafile[0]
+    rules = load_file(schemafile)
 
     for df in args.datafile:
-        data = load_file(df)
+        data = load_file(df, "1.1")
         try:
-            process_rule(data, rules, 'root')
+            check(data, rules)
         except FormatError as e:
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print(f"File:  {df}")
-            print("Error: {}".format(str(e)))
-            if e.data is not None:
-                print("At block")
-                print("--------")
-                pprint(e.data, depth=1)
-            print("--------------------------------------------------")
+            print(f'Data File "{df}" Errors:')
+            print(f'\tline {e.line}: {e.message}')
+            if e.errors:
+                for ee in e.errors:
+                    if 'Input data for' in ee.message:
+                        continue
+                    print(f'\tline {ee.line}: {ee.message}')
+            print(f'Schema File "{schemafile}" line {rules[e.rule].lc.line}, Rule: "{e.rule}"')
             print("")
             sys.exit(1)

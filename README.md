@@ -8,16 +8,16 @@ yspec is a deadly simple checker for structures. It is especially usefull for va
 yspec ./schema.yaml /tmp/data.json
 ```
 
-NOTE: yspec able to take json/yaml/toml for schema and for data
+NOTE: yspec able to take yaml/json for schema and for data
 
 ## Usage from code
 
 ```python
-from yspec.checker import process_rule
+from yspec.checker import check
 
 # Some code that prepares data and rules
 
-process_rule(data, rules, 'root')
+check(data, rules)
 ```
 
 ## Schema Format
@@ -75,6 +75,20 @@ my_awesome_int:
 ```yaml
 my_awesome_float:
   match: float
+```
+
+#### None
+
+```yaml
+empty_object:
+  match: none
+```
+
+#### Any
+
+```yaml
+any_type:
+  match: any
 ```
 
 ### Recursion type matches
@@ -179,6 +193,33 @@ constraint_list_item:
 ```
 
 OneOf match success if any of rules from "variants" success.
+
+#### Set match
+
+Suppose you need to check your little list of fruits:
+
+```yaml
+---
+- apple
+- plum
+```
+
+You can use Set match for it. In variants clause of Set match you list all
+posible values for this type:
+
+```yaml
+---
+root:
+  match: list
+  item: fruits
+
+fruits:
+  match: set
+  variants:
+    - apple
+    - orange
+    - plum
+```
 
 #### Dict key selection
 
